@@ -1,0 +1,10 @@
+.project
+.settings/
+api/.classpath
+api/.gitignore
+api/.project
+api/.settings/
+omod/.classpath
+omod/.gitignore
+omod/.project
+omod/.settings/

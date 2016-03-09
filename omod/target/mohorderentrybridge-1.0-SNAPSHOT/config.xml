@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<module configVersion="1.2">
+
+	<!-- Module Properties -->
+	<id>mohorderentrybridge</id>
+	<name>MoH Order Entry Bridge Module</name>
+	<version>1.0-SNAPSHOT</version>
+	<package>org.openmrs.module.mohorderentrybridge</package>
+	<author>k-joseph</author>
+	<description>
+		Bridges the Order Entry API gaps introduced while evolving OpenMRS API upto 1.11.5
+	</description>
+	<updateURL>https://modules.openmrs.org/modules/download/mohorderentrybridge/update.rdf</updateURL>
+	<require_version>1.11.5</require_version>
+	<!-- / Module Properties -->
+
+	
+	<!-- Module Activator -->
+	<activator>org.openmrs.module.mohorderentrybridge.MoHOrderEntryBridgeActivator</activator>
+	
+	
+	<!-- Maps hibernate file's, if present -->
+	<mappingFiles>
+				
+		MoHOrderEntryBridge.hbm.xml
+				
+	</mappingFiles>
+
+	<!-- Internationalization -->
+	<!-- All message codes should start with mohorderentrybridge. -->
+	<messages>
+		<lang>en</lang>
+		<file>messages.properties</file>
+	</messages>
+	<messages>
+		<lang>fr</lang>
+		<file>messages_fr.properties</file>
+	</messages>
+	<messages>
+		<lang>es</lang>
+		<file>messages_es.properties</file>
+	</messages>
+	<!-- /Internationalization -->
+
+</module>
+
