@@ -2,8 +2,8 @@ package org.openmrs.module.mohorderentrybridge;
 
 import org.openmrs.DrugOrder;
 
-/*
- * This class is meant to provide DrugOrder method returns which are needed at client level as variables instead
+/**
+ * This class extends {@link DrugOrder} and is meant to provide DrugOrder method returns which are needed at client level as variables instead
  * to support Tomcat6 container which can't call the methods themselves
  */
 public class MoHDrugOrder {

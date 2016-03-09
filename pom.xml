@@ -6,7 +6,7 @@
 	<artifactId>mohorderentrybridge</artifactId>
 	<version>1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
-	<name>MoH Order Entry Bridge Module</name>
+	<name>MoH Order Entry Bridge</name>
 	<description>Bridges the Order Entry API gaps introduced while evolving OpenMRS API upto 1.11.5</description>
 	<url>https://wiki.openmrs.org/display/docs/MoH+Order+Entry+Bridge+Module+Module</url>
 	
@@ -143,5 +143,16 @@
 			</snapshots>
 		</pluginRepository>
 	</pluginRepositories>
-
+	<distributionManagement>
+		<repository>
+			<id>openmrs-repo-modules</id>
+			<name>Modules</name>
+			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/modules/</url>
+		</repository>
+		<snapshotRepository>
+			<id>openmrs-repo-snapshots</id>
+			<name>OpenMRS Snapshots</name>
+			<url>http://mavenrepo.openmrs.org/nexus/content/repositories/snapshots</url>
+		</snapshotRepository>
+	</distributionManagement>
 </project>
