@@ -50,9 +50,9 @@ public class MoHDrugOrder {
 							 * !dos.isVoided() &&
 							 * dos.getEffectiveStartDate().before(new Date()))
 							 */);
-		setDoseUnitsName(dos.getDoseUnits().getName().getName());
-		setQuantityUnitsName(dos.getQuantityUnits().getName().getName());
-		setRouteName(dos.getRoute().getName().getName());
+		setDoseUnitsName(dos.getDoseUnits() != null ? dos.getDoseUnits().getName().getName() : null);
+		setQuantityUnitsName(dos.getQuantityUnits() != null ? dos.getQuantityUnits().getName().getName() : null);
+		setRouteName(dos.getRoute() != null ? dos.getRoute().getName().getName() : null);
 	}
 
 	public boolean getIsActive() {

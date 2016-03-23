@@ -15,12 +15,13 @@ package org.openmrs.module.mohorderentrybridge.api;
 
 import static org.junit.Assert.assertNotNull;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 
 import org.h2.jdbc.JdbcSQLException;
-import org.hibernate.cfg.Environment;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,6 +37,7 @@ import org.openmrs.api.OrderService;
 import org.openmrs.api.PatientService;
 import org.openmrs.api.ProviderService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
 import org.openmrs.test.BaseModuleContextSensitiveTest;
 import org.openmrs.util.OpenmrsConstants;
 
@@ -51,10 +53,11 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	private EncounterService encounterService = null;
 	private ProviderService providerService = null;
 	private PatientService patientService = null;
-	
+	private MoHOrderEntryBridgeService mohOrderEntryAPIService;
+
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
-
+	
 	@Before
 	public void setupDatabase() throws Exception {
 		orderService = Context.getOrderService();
@@ -62,6 +65,7 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		providerService = Context.getProviderService();
 		encounterService = Context.getEncounterService();
 		conceptService = Context.getConceptService();
+		mohOrderEntryAPIService = Context.getService(MoHOrderEntryBridgeService.class);
 	}
 
 	@Test
@@ -92,12 +96,13 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	 * @throws Exception
 	 */
 	@Test
-	public void testAlltheMoHUpgradeAssumptions_1() throws Exception {
+	public void testAlltheMoHUpgradeAssumptions() throws Exception {
 		Patient patient2 = patientService.getPatient(2);
 		List<Order> patient2Orders = orderService.getAllOrdersByPatient(patient2);
 		Integer patient2OrdersOriginalCount = patient2Orders.size();
 		Integer patient2OrdersFinalCount = null;
 		Order order22 = orderService.getOrder(22);// DISCONTINUED
+		DateFormat dFormatter = new SimpleDateFormat("dd/MM/yyyy");
 		
 		DrugOrder newDrugOrder = new DrugOrder();//All the fields bellow should be set for a new order by MoH modules
 		newDrugOrder.setOrderType(orderService.getOrderTypeByUuid("dd3fb1d0-ae06-11e3-a5e2-0800200c9a77"));
@@ -113,6 +118,7 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		} else {
 			newDrugOrder.setDateActivated(cal.getTime());
 		}
+		newDrugOrder.setDateCreated(new Date());
 		newDrugOrder.setAutoExpireDate(cal2.getTime());
 		newDrugOrder.setOrderer(providerService.getProvider(1));
 		newDrugOrder.setEncounter(encounterService.getEncounter(6));
@@ -136,18 +142,49 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		patient2OrdersFinalCount = orderService.getAllOrdersByPatient(patient2).size();
 		Assert.assertTrue(patient2OrdersFinalCount - patient2OrdersOriginalCount == 1);//one order is added after saving
 		Assert.assertEquals(savedOrder.getAction(), Action.NEW);
+		cal2.add(Calendar.DATE, 30);
 		Assert.assertTrue(savedOrder.isStarted());//TODO why is is this order started today when dateActivated is one day later?
+		Assert.assertNull(savedOrder.getDateChanged());
 		
-		Order discontinuedOrder = orderService.discontinueOrder(savedOrder, savedOrder.getConcept(), new Date(),
+		String discontinueReason = "Discontine this order";
+		Order discontinuedOrder = orderService.discontinueOrder(savedOrder, discontinueReason , new Date(),
 				savedOrder.getOrderer(), savedOrder.getEncounter());
-
+		
+		Assert.assertNull(savedOrder.getDateChanged());//TODO discontinue action doesn't set date Changed
+		Assert.assertEquals(dFormatter.format(savedOrder.getEffectiveStopDate()), dFormatter.format(new Date()));//Date discontinued is date stopped
+		Assert.assertTrue(savedOrder.isStarted());
 		Assert.assertFalse(discontinuedOrder.isActive());
 		Assert.assertFalse(savedOrder.isActive());
 		Assert.assertTrue(discontinuedOrder.isExpired());
+		Assert.assertEquals(discontinueReason, discontinuedOrder.getOrderReasonNonCoded());
+		Assert.assertEquals("REASON", savedOrder.getOrderReasonNonCoded());
 		Assert.assertEquals(discontinuedOrder.getAction(), Action.DISCONTINUE);
 		Assert.assertEquals(savedOrder.getAction(), Action.NEW);
+		Assert.assertEquals(savedOrder.getEffectiveStartDate(), savedOrder.getDateActivated());
+		Assert.assertEquals(savedOrder.getEffectiveStopDate(), savedOrder.getDateStopped());
+		Assert.assertEquals(discontinuedOrder.getEffectiveStartDate(), discontinuedOrder.getDateActivated());
+		Assert.assertNull(discontinuedOrder.getDateStopped());
+		Assert.assertNotNull(discontinuedOrder.getAutoExpireDate());
+		Assert.assertEquals(discontinuedOrder.getEffectiveStopDate(), discontinuedOrder.getAutoExpireDate());//for a discontinuation order, autoexpire date is set instead of data stopped which is set for a discontinued order, TODO resolve SQL
+		
 		patient2OrdersFinalCount = orderService.getAllOrdersByPatient(patient2).size();
 
 		Assert.assertTrue(patient2OrdersFinalCount - patient2OrdersOriginalCount == 2);//another order is added when discontinue is invoked
+	}
+	
+	@Test
+	public void testMoHOrderEntryBridgeAPI() {
+		Patient patient2 = patientService.getPatient(2);
+		List<MoHDrugOrder> mohDrugOrdersForPatient2 = mohOrderEntryAPIService.getMoHDrugOrdersByPatient(patient2);
+		
+		Assert.assertSame(mohDrugOrdersForPatient2.size(), mohOrderEntryAPIService.getDrugOrdersByPatient(patient2).size());
+		for(MoHDrugOrder mohDOrder : mohDrugOrdersForPatient2) {
+			if(mohDOrder.getIsActive()) {
+				DrugOrder dOrder = mohDOrder.getDrugOrder();
+				
+				Assert.assertSame(mohDOrder.getIsActive(), dOrder.isActive());
+				//TODO may be; go deeper into testing isActive
+			}
+		}
 	}
 }
