@@ -24,8 +24,9 @@ import org.h2.jdbc.JdbcSQLException;
 import org.hibernate.cfg.Environment;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.Patient;
@@ -50,12 +51,15 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	private EncounterService encounterService = null;
 	private ProviderService providerService = null;
 	private PatientService patientService = null;
+	
+	@Rule
+	public ExpectedException expectedException = ExpectedException.none();
 
 	/**
 	 * Supposed to Fix; "Caused by: org.h2.jdbc.JdbcSQLException: Timeout trying to lock table ; SQL statement:"
 	 * @see org.openmrs.test.BaseContextSensitiveTest#getRuntimeProperties()
 	 */
-	@Override
+	/*@Override
 	public Properties getRuntimeProperties() {
 	    Properties props = super.getRuntimeProperties();
 	    String url = props.getProperty(Environment.URL);
@@ -63,7 +67,7 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	    if (url.contains("jdbc:h2:") && !url.contains(";MVCC=TRUE")) {
 	        props.setProperty(Environment.URL, url + ";MVCC=TRUE");
 	    }
-	    /*if (url.contains("jdbc:h2:") && !url.contains(";MULTI_THREADED=")) {
+	    if (url.contains("jdbc:h2:") && !url.contains(";MULTI_THREADED=")) {
 	        props.setProperty(Environment.URL, url + ";MULTI_THREADED=0");
 	    }
 	    url = props.getProperty(Environment.URL);
@@ -83,9 +87,27 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	    		}
 	    	}
 	    	props.setProperty(Environment.URL, newUrl);
-	    }*/
+	    }
 	    url = props.getProperty(Environment.URL);
 	    return props;
+	}*/
+
+	/**
+	 * Overriding following method is necessary to enable MVCC which is disabled by default in DB h2
+	 * used for the component tests. This prevents following exception:
+	 * org.hibernate.exception.GenericJDBCException: could not load an entity:
+	 * [org.openmrs.GlobalProperty#order.nextOrderNumberSeed] due to
+	 * "Timeout trying to lock table "GLOBAL_PROPERTY"; SQL statement:" which occurs in all tests
+	 * touching methods that call orderService.saveOrder()
+	 */
+	@Override
+	public Properties getRuntimeProperties() {
+		Properties result = super.getRuntimeProperties();
+		String url = result.getProperty(Environment.URL);
+		if (url.contains("jdbc:h2:") && !url.contains(";MVCC=TRUE")) {
+			result.setProperty(Environment.URL, url + ";MVCC=TRUE");
+		}
+		return result;
 	}
 	
 	@Before
@@ -96,8 +118,6 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		encounterService = Context.getEncounterService();
 		conceptService = Context.getConceptService();
 
-		initializeInMemoryDatabase();
-		authenticate();
 		executeDataSet("org/openmrs/include/standardTestDataset.xml");
 	}
 
@@ -128,8 +148,10 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	 * 
 	 * @throws Exception
 	 */
-	@Ignore
+	@Test
 	public void testAlltheMoHUpgradeAssumptions_1() throws Exception {
+		String url = getRuntimeProperties().getProperty(Environment.URL);//URL: jdbc:h2:mem:openmrs;DB_CLOSE_DELAY=30;LOCK_TIMEOUT=10000;MVCC=TRUE
+		
 		Patient patient2 = patientService.getPatient(2);
 		List<Order> patient2Orders = orderService.getAllOrdersByPatient(patient2);
 		Integer patient2OrdersOriginalCount = patient2Orders.size();

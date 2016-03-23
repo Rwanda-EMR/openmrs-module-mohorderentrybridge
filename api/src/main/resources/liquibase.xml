@@ -83,4 +83,11 @@
 		</addColumn>
 	</changeSet>
 	
+	<changeSet id="2016Mar23-1506" author="k-joseph" dbms="mysql">
+		<comment>
+			Migrating MoH EMR 1.6.x data to 1.11.x Data model
+		</comment>
+		
+	</changeSet>
+	
 </databaseChangeLog>
