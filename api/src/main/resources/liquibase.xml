@@ -9,4 +9,78 @@
         for a list of supported elements and attributes
     -->
     
+    <!-- JUST HACKS TO GET THE DATABASE TO UPGRADE FROM 1.6.x to 1.11.5 -->
+    <changeSet id="2016Mar23-1105" author="k-joseph" dbms="mysql">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">
+				<![CDATA[
+				SELECT count(*) FROM role where role='Data Manager';
+				]]>
+			</sqlCheck>
+			<sqlCheck expectedResult="0">
+				<![CDATA[
+				SELECT count(*) FROM role where role='Data Assistant';
+				]]>
+			</sqlCheck>
+		</preConditions>
+		<comment>
+			Creating MoH EMR roles
+		</comment>
+		<insert tableName="role">
+			<column name="role" value="Data Manager"/>
+			<column name="description" value="Rwanda EMR Data Manager"/>
+			<column name="uuid" value="91c70b4a-97af-11e5-8994-feff819cdc9f"/>
+		</insert>
+		<insert tableName="role">
+			<column name="role" value="Data Assistant"/>
+			<column name="description" value="Rwanda EMR Data Assistant"/>
+			<column name="uuid" value="91c70f28-97af-11e5-8994-feff819cdc9f"/>
+		</insert>
+	</changeSet>
+    <changeSet id="2016Mar23-1112" author="k-joseph" dbms="mysql">
+		<preConditions onFail="MARK_RAN">
+			<not><columnExists tableName="order_type" columnName="java_class_name"/></not>
+			<not><columnExists tableName="order_type" columnName="parent"/></not>
+		</preConditions>
+		<comment>
+			Add java_class_name and parent columns to order_type table
+		</comment>
+		<addColumn tableName="order_type">
+			<column name="java_class_name" type="int(255)" />
+		</addColumn>
+		<addColumn tableName="order_type">
+			<column name="parent" type="int(11)" />
+		</addColumn>
+	</changeSet>
+	<changeSet id="2016Mar23-1116" author="k-joseph" dbms="mysql">
+		<comment>
+			Updating java class names under order_type table
+		</comment>
+		<update tableName="order_type">
+			<column name="java_class_name" value="org.openmrs.TestOrder"/>
+			<where>name='Lab test'</where>
+		</update>
+		<update tableName="order_type">
+			<column name="java_class_name" value="org.openmrs.DrugOrder"/>
+			<where>name='Drug order'</where>
+		</update>
+		<update tableName="order_type">
+			<column name="java_class_name" value="org.openmrs.LunchOrder"/>
+			<where>name='Lunch order'</where>
+		</update>
+	</changeSet>
+	<changeSet id="2016Mar23-1123" author="k-joseph" dbms="mysql">
+		<preConditions onFail="MARK_RAN">
+			<not><columnExists tableName="concept_answer" columnName="sort_weight"/></not>
+		</preConditions>
+		<comment>
+			Add sort_weight column to concept_answer table
+		</comment>
+		<addColumn tableName="concept_answer">
+			<column name="sort_weight" type="int">
+				<constraints nullable="false" />
+			</column>
+		</addColumn>
+	</changeSet>
+	
 </databaseChangeLog>
