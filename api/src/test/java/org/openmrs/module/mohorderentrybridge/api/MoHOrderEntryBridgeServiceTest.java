@@ -18,7 +18,6 @@ import static org.junit.Assert.assertNotNull;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Properties;
 
 import org.h2.jdbc.JdbcSQLException;
 import org.hibernate.cfg.Environment;
@@ -29,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.Order.Action;
 import org.openmrs.Patient;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.EncounterService;
@@ -55,61 +55,6 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	@Rule
 	public ExpectedException expectedException = ExpectedException.none();
 
-	/**
-	 * Supposed to Fix; "Caused by: org.h2.jdbc.JdbcSQLException: Timeout trying to lock table ; SQL statement:"
-	 * @see org.openmrs.test.BaseContextSensitiveTest#getRuntimeProperties()
-	 */
-	/*@Override
-	public Properties getRuntimeProperties() {
-	    Properties props = super.getRuntimeProperties();
-	    String url = props.getProperty(Environment.URL);
-	    
-	    if (url.contains("jdbc:h2:") && !url.contains(";MVCC=TRUE")) {
-	        props.setProperty(Environment.URL, url + ";MVCC=TRUE");
-	    }
-	    if (url.contains("jdbc:h2:") && !url.contains(";MULTI_THREADED=")) {
-	        props.setProperty(Environment.URL, url + ";MULTI_THREADED=0");
-	    }
-	    url = props.getProperty(Environment.URL);
-	    if (url.contains("jdbc:h2:") && url.contains(";LOCK_TIMEOUT=")) {
-	    	String newUrl = "";
-	    	List<String> urlPortions = Arrays.asList(url.split(";"));
-	        
-	    	for(int i = 0; i < urlPortions.size(); i++) {
-	    		String urlPortion = urlPortions.get(i);
-	    		if(urlPortion.startsWith("LOCK_TIMEOUT=")) {
-	    			newUrl += "LOCK_TIMEOUT=" + Integer.MAX_VALUE;
-	    		} else {
-	    			newUrl += urlPortion;
-	    		}
-	    		if(i != urlPortions.size() - 1) {
-	    			newUrl += ";";
-	    		}
-	    	}
-	    	props.setProperty(Environment.URL, newUrl);
-	    }
-	    url = props.getProperty(Environment.URL);
-	    return props;
-	}*/
-
-	/**
-	 * Overriding following method is necessary to enable MVCC which is disabled by default in DB h2
-	 * used for the component tests. This prevents following exception:
-	 * org.hibernate.exception.GenericJDBCException: could not load an entity:
-	 * [org.openmrs.GlobalProperty#order.nextOrderNumberSeed] due to
-	 * "Timeout trying to lock table "GLOBAL_PROPERTY"; SQL statement:" which occurs in all tests
-	 * touching methods that call orderService.saveOrder()
-	 */
-	@Override
-	public Properties getRuntimeProperties() {
-		Properties result = super.getRuntimeProperties();
-		String url = result.getProperty(Environment.URL);
-		if (url.contains("jdbc:h2:") && !url.contains(";MVCC=TRUE")) {
-			result.setProperty(Environment.URL, url + ";MVCC=TRUE");
-		}
-		return result;
-	}
-	
 	@Before
 	public void setupDatabase() throws Exception {
 		orderService = Context.getOrderService();
@@ -117,8 +62,6 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		providerService = Context.getProviderService();
 		encounterService = Context.getEncounterService();
 		conceptService = Context.getConceptService();
-
-		executeDataSet("org/openmrs/include/standardTestDataset.xml");
 	}
 
 	@Test
@@ -150,8 +93,6 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 	 */
 	@Test
 	public void testAlltheMoHUpgradeAssumptions_1() throws Exception {
-		String url = getRuntimeProperties().getProperty(Environment.URL);//URL: jdbc:h2:mem:openmrs;DB_CLOSE_DELAY=30;LOCK_TIMEOUT=10000;MVCC=TRUE
-		
 		Patient patient2 = patientService.getPatient(2);
 		List<Order> patient2Orders = orderService.getAllOrdersByPatient(patient2);
 		Integer patient2OrdersOriginalCount = patient2Orders.size();
@@ -160,11 +101,19 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		
 		DrugOrder newDrugOrder = new DrugOrder();//All the fields bellow should be set for a new order by MoH modules
 		newDrugOrder.setOrderType(orderService.getOrderTypeByUuid("dd3fb1d0-ae06-11e3-a5e2-0800200c9a77"));
-		newDrugOrder.setDateActivated(new Date());
 		Calendar cal = Calendar.getInstance();
-		cal.add(Calendar.DATE, 1);// expires the next day
-		//newDrugOrder.setAction(Action.NEW);
-		newDrugOrder.setAutoExpireDate(cal.getTime());
+		Calendar cal2 = Calendar.getInstance();
+		cal.add(Calendar.DATE, 1);
+		cal2.add(Calendar.DATE, 2);// expires the next day
+		newDrugOrder.setAction(Action.NEW);
+		
+		//use this check when saving for start date from the UI
+		if(cal.getTime().after(new Date())) {
+			//TODO api can't save such a dateactivated or start date
+		} else {
+			newDrugOrder.setDateActivated(cal.getTime());
+		}
+		newDrugOrder.setAutoExpireDate(cal2.getTime());
 		newDrugOrder.setOrderer(providerService.getProvider(1));
 		newDrugOrder.setEncounter(encounterService.getEncounter(6));
 		newDrugOrder.setOrderReasonNonCoded("REASON");
@@ -176,18 +125,29 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		newDrugOrder.setDrug(conceptService.getDrug(3));
 		newDrugOrder.setCareSetting(orderService.getCareSetting(2));
 		newDrugOrder.setPreviousOrder(orderService.getOrderByOrderNumber("111"));
-
+		Assert.assertFalse(newDrugOrder.isStarted());
+		
 		Order savedOrder = orderService.saveOrder(newDrugOrder, null);
 		Assert.assertFalse(order22.isActive());// isDiscontinued
-		Assert.assertTrue(savedOrder.isActive());// is not discontinue
+		Assert.assertTrue(savedOrder.isActive(cal.getTime()));// is not discontinue
+		Assert.assertTrue(savedOrder.isActive(cal2.getTime()));//active on end date
+		cal2.add(Calendar.DATE, 3);
+		Assert.assertFalse(savedOrder.isActive(cal2.getTime()));//not active after end date
+		patient2OrdersFinalCount = orderService.getAllOrdersByPatient(patient2).size();
+		Assert.assertTrue(patient2OrdersFinalCount - patient2OrdersOriginalCount == 1);//one order is added after saving
+		Assert.assertEquals(savedOrder.getAction(), Action.NEW);
+		Assert.assertTrue(savedOrder.isStarted());//TODO why is is this order started today when dateActivated is one day later?
 		
-		//Order discontinuedOrder = orderService.discontinueOrder(savedOrder, savedOrder.getConcept(), new Date(),
-				//savedOrder.getOrderer(), savedOrder.getEncounter());
+		Order discontinuedOrder = orderService.discontinueOrder(savedOrder, savedOrder.getConcept(), new Date(),
+				savedOrder.getOrderer(), savedOrder.getEncounter());
 
-		//Assert.assertFalse(discontinuedOrder.isActive());
-		Assert.assertFalse(savedOrder.isActive());// is discontinue
+		Assert.assertFalse(discontinuedOrder.isActive());
+		Assert.assertFalse(savedOrder.isActive());
+		Assert.assertTrue(discontinuedOrder.isExpired());
+		Assert.assertEquals(discontinuedOrder.getAction(), Action.DISCONTINUE);
+		Assert.assertEquals(savedOrder.getAction(), Action.NEW);
 		patient2OrdersFinalCount = orderService.getAllOrdersByPatient(patient2).size();
 
-		Assert.assertTrue(patient2OrdersFinalCount - patient2OrdersOriginalCount == 1);
+		Assert.assertTrue(patient2OrdersFinalCount - patient2OrdersOriginalCount == 2);//another order is added when discontinue is invoked
 	}
 }

@@ -10,6 +10,7 @@
     -->
     
     <!-- JUST HACKS TO GET THE DATABASE TO UPGRADE FROM 1.6.x to 1.11.5 -->
+    <!-- Moved to mohbeforeoneelevenupgrade module
     <changeSet id="2016Mar23-1105" author="k-joseph" dbms="mysql">
 		<preConditions onFail="MARK_RAN">
 			<sqlCheck expectedResult="0">
@@ -46,7 +47,7 @@
 			Add java_class_name and parent columns to order_type table
 		</comment>
 		<addColumn tableName="order_type">
-			<column name="java_class_name" type="int(255)" />
+			<column name="java_class_name" type="varchar(255)" />
 		</addColumn>
 		<addColumn tableName="order_type">
 			<column name="parent" type="int(11)" />
@@ -87,7 +88,10 @@
 		<comment>
 			Migrating MoH EMR 1.6.x data to 1.11.x Data model
 		</comment>
+		<sql>
+			
+		</sql>
 		
-	</changeSet>
+	</changeSet> -->
 	
 </databaseChangeLog>
