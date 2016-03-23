@@ -28,6 +28,7 @@
 	</scm>
 
 	<modules>
+		<module>api-1.6.x</module>
 		<module>api</module>
 		<module>omod</module>
 	</modules>
@@ -39,22 +40,7 @@
 
 	<dependencyManagement>
 		<dependencies>
-		
-			<!--
-			Libraries to add as dependencies with compile or runtime scope:
-			Find matching dependencies in the maven central repository.
-			<dependency>
-				<groupId>org.other.library</groupId>
-				<artifactId>library-name</artifactId>
-				<version>library.version</version>
-				<scope>compile</scope>
-			</dependency>
-			-->
-			
-			
-
 			<!-- Begin OpenMRS core -->
-			
 			<dependency>
 				<groupId>org.openmrs.api</groupId>
 				<artifactId>openmrs-api</artifactId>
@@ -62,7 +48,6 @@
 				<type>jar</type>
 				<scope>provided</scope>
 			</dependency>
-
 			<dependency>
 				<groupId>org.openmrs.web</groupId>
 				<artifactId>openmrs-web</artifactId>
@@ -70,7 +55,6 @@
 				<type>jar</type>
 				<scope>provided</scope>
 			</dependency>
-						
 			<dependency>
 				<groupId>org.openmrs.api</groupId>
 				<artifactId>openmrs-api</artifactId>
@@ -78,7 +62,6 @@
 				<type>test-jar</type>
 				<scope>test</scope>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.openmrs.web</groupId>
 				<artifactId>openmrs-web</artifactId>
@@ -86,7 +69,6 @@
 				<type>test-jar</type>
 				<scope>test</scope>
 			</dependency>
-			
 			<dependency>
 				<groupId>org.openmrs.test</groupId>
 				<artifactId>openmrs-test</artifactId>
@@ -94,9 +76,7 @@
 				<type>pom</type>
 				<scope>test</scope>
 			</dependency>
-						
 			<!-- End OpenMRS core -->
-
 		</dependencies>
 	</dependencyManagement>
 

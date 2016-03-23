@@ -8,52 +8,33 @@
 		<version>1.0-SNAPSHOT</version>
 	</parent>
 
-	<artifactId>mohorderentrybridge-omod</artifactId>
+	<artifactId>mohorderentrybridge-api-1.6.x</artifactId>
 	<packaging>jar</packaging>
-	<name>MoH Order Entry Bridge Module OMOD</name>
-	<description>OMOD project for MoHOrderEntryBridge</description>
+	<name>MoH Order Entry Bridge Module API 1.6.x</name>
+	<description>Provides test data for 1.6.x platform tests which is closer to 1.6.7 used by MoH</description>
 
 	<dependencies>
-		<!-- Begin OpenMRS modules -->
-		<dependency>
-			<groupId>${project.parent.groupId}</groupId>
-			<artifactId>${project.parent.artifactId}-api</artifactId>
-			<version>${project.parent.version}</version>
-		</dependency>
-		<!-- End OpenMRS modules -->
-		
-
-		<!-- Begin OpenMRS core -->
 		<dependency>
 			<groupId>org.openmrs.api</groupId>
 			<artifactId>openmrs-api</artifactId>
+			<version>1.6.6</version>
 			<type>jar</type>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.web</groupId>
 			<artifactId>openmrs-web</artifactId>
+			<version>1.6.6</version>
 			<type>jar</type>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.api</groupId>
-			<artifactId>openmrs-api</artifactId>
-			<type>test-jar</type>
-			<scope>test</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.openmrs.web</groupId>
-			<artifactId>openmrs-web</artifactId>
-			<type>test-jar</type>
-			<scope>test</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.openmrs.test</groupId>
 			<artifactId>openmrs-test</artifactId>
-			<type>pom</type>
-			<scope>test</scope>
+			<version>1.6.6</version>
+			<type>jar</type>
+			<scope>provided</scope>
 		</dependency>
-		<!-- End OpenMRS core -->
-
 	</dependencies>
 
 	<build>
@@ -140,26 +121,17 @@
 
 		<plugins>
 			<plugin>
-				<groupId>org.openmrs.maven.plugins</groupId>
-				<artifactId>maven-openmrs-plugin</artifactId>
-				<extensions>true</extensions>
-				<executions>
-					<execution>
-						<id>init</id>
-						<phase>initialize</phase>
-						<goals>
-							<goal>initialize-module</goal>
-						</goals>
-					</execution>
-					<execution>
-						<id>pack</id>
-						<phase>package</phase>
-						<goals>
-							<goal>package-module</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-jar-plugin</artifactId>
+		        <version>2.6</version>
+		        <executions>
+		          <execution>
+		            <goals>
+		              <goal>test-jar</goal>
+		            </goals>
+		          </execution>
+		        </executions>
+	      	</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
