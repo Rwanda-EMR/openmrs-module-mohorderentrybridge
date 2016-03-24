@@ -170,6 +170,12 @@ public class MoHOrderEntryBridgeServiceTest extends BaseModuleContextSensitiveTe
 		patient2OrdersFinalCount = orderService.getAllOrdersByPatient(patient2).size();
 
 		Assert.assertTrue(patient2OrdersFinalCount - patient2OrdersOriginalCount == 2);//another order is added when discontinue is invoked
+	
+		//test deleting an order
+		Integer orderId = savedOrder.getOrderId();
+		Assert.assertNotNull(orderService.getOrder(orderId));
+		orderService.purgeOrder(savedOrder);
+		Assert.assertNull(orderService.getOrder(orderId));
 	}
 	
 	@Test

@@ -1,10 +1,13 @@
 package org.openmrs.module.mohorderentrybridge;
 
+import java.util.Date;
+
 import org.openmrs.DrugOrder;
 
 /**
- * This class extends {@link DrugOrder} and is meant to provide DrugOrder method returns which are needed at client level as variables instead
- * to support Tomcat6 container which can't call the methods themselves
+ * This class extends {@link DrugOrder} and is meant to provide DrugOrder method
+ * returns which are needed at client level as variables instead to support
+ * Tomcat6 container which can't call the methods themselves
  */
 public class MoHDrugOrder {
 
@@ -17,6 +20,26 @@ public class MoHDrugOrder {
 	private String quantityUnitsName;
 
 	private String routeName;
+	
+	private Date startDate;
+	
+	private Date stopDate;
+
+	public Date getStartDate() {
+		return startDate;
+	}
+
+	public void setStartDate(Date startDate) {
+		this.startDate = startDate;
+	}
+
+	public Date getStopDate() {
+		return stopDate;
+	}
+
+	public void setStopDate(Date stopDate) {
+		this.stopDate = stopDate;
+	}
 
 	public String getDoseUnitsName() {
 		return doseUnitsName;
@@ -44,15 +67,12 @@ public class MoHDrugOrder {
 
 	public MoHDrugOrder(DrugOrder dos) {
 		setDrugOrder(dos);
-		setActive(dos
-				.isActive()/*
-							 * || (dos.isStarted() && !dos.isExpired() &&
-							 * !dos.isVoided() &&
-							 * dos.getEffectiveStartDate().before(new Date()))
-							 */);
+		setActive(isActive());
 		setDoseUnitsName(dos.getDoseUnits() != null ? dos.getDoseUnits().getName().getName() : null);
 		setQuantityUnitsName(dos.getQuantityUnits() != null ? dos.getQuantityUnits().getName().getName() : null);
 		setRouteName(dos.getRoute() != null ? dos.getRoute().getName().getName() : null);
+		setStartDate(dos.getEffectiveStartDate());
+		setStopDate(dos.getEffectiveStopDate());
 	}
 
 	public boolean getIsActive() {
@@ -61,6 +81,17 @@ public class MoHDrugOrder {
 
 	public void setActive(boolean isActive) {
 		this.isActive = isActive;
+	}
+
+	/*
+	 * overwrites Order#isActive
+	 */
+	private boolean isActive() {
+		if (getDrugOrder().isActive() && getDrugOrder().isStarted() && !getDrugOrder().isExpired()
+				&& !getDrugOrder().isVoided()) {
+			return true;
+		} else
+			return false;
 	}
 
 	public DrugOrder getDrugOrder() {

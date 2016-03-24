@@ -37,10 +37,19 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public interface MoHOrderEntryBridgeService extends OpenmrsService {
 
+	/**
+     * Excludes DISCONTINUATION AND REVISION orders
+     */
 	public List<MoHDrugOrder> getMoHDrugOrdersByPatient(Patient patient);
 
+	/**
+     * Excludes DISCONTINUATION order
+     */
 	public List<DrugOrder> getDrugOrdersByPatient(Patient patient);
 
+	/**
+	 * TODO, this is probably not good at-all for sites where data entry is done afterwards by a data clerk
+	 */
 	public Provider getFirstCurrentProvider();
 
 	public List<MoHConcept> convertConceptsListToMoHConceptsList(List<Concept> concepts);

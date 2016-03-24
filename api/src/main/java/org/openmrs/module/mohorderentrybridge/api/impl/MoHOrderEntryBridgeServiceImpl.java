@@ -23,6 +23,7 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.Order.Action;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
@@ -36,74 +37,77 @@ import org.openmrs.module.mohorderentrybridge.api.db.MoHOrderEntryBridgeDAO;
  * It is a default implementation of {@link MoHOrderEntryBridgeService}.
  */
 public class MoHOrderEntryBridgeServiceImpl extends BaseOpenmrsService implements MoHOrderEntryBridgeService {
-	
+
 	protected final Log log = LogFactory.getLog(this.getClass());
-	
+
 	private MoHOrderEntryBridgeDAO dao;
-	
+
 	/**
-     * @param dao the dao to set
-     */
-    public void setDao(MoHOrderEntryBridgeDAO dao) {
-	    this.dao = dao;
-    }
-    
-    /**
-     * @return the dao
-     */
-    public MoHOrderEntryBridgeDAO getDao() {
-	    return dao;
-    }
-    
-    @Override
-    public List<MoHDrugOrder> getMoHDrugOrdersByPatient(Patient patient) {
+	 * @param dao
+	 *            the dao to set
+	 */
+	public void setDao(MoHOrderEntryBridgeDAO dao) {
+		this.dao = dao;
+	}
+
+	/**
+	 * @return the dao
+	 */
+	public MoHOrderEntryBridgeDAO getDao() {
+		return dao;
+	}
+
+	@Override
+	public List<MoHDrugOrder> getMoHDrugOrdersByPatient(Patient patient) {
 		List<Order> orderList = Context.getOrderService().getAllOrdersByPatient(patient);
 		List<MoHDrugOrder> drugOrders = new ArrayList<MoHDrugOrder>();
 
 		List<Patient> patients = new Vector<Patient>();
 		patients.add(patient);
-		for(Order order: orderList) {
-			if("org.openmrs.DrugOrder".equals(order.getOrderType().getJavaClassName()) && order instanceof DrugOrder) {
+		for (Order order : orderList) {
+			if ("org.openmrs.DrugOrder".equals(order.getOrderType().getJavaClassName()) && order instanceof DrugOrder
+					&& !order.getAction().equals(Action.DISCONTINUE)) {
 				MoHDrugOrder mohDOrder = new MoHDrugOrder((DrugOrder) order);
-				
+
 				drugOrders.add(mohDOrder);
 			}
 		}
 		return drugOrders;
 	}
-    
-    @Override
-    public List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
-    	List<MoHDrugOrder> mohDrugOrders = getMoHDrugOrdersByPatient(patient);
-    	List<DrugOrder> drugOrders = new ArrayList<DrugOrder>();
-    	
-    	for(MoHDrugOrder mohDrugOrder : mohDrugOrders) {
-    		drugOrders.add(mohDrugOrder.getDrugOrder());
-    	}
-    	return drugOrders;
-    }
-    
-    @Override
-    public Provider getFirstCurrentProvider() {
-    	Collection<Provider> activPproviders = Context.getProviderService().getProvidersByPerson(Context.getAuthenticatedUser().getPerson());
+
+	@Override
+	public List<DrugOrder> getDrugOrdersByPatient(Patient patient) {
+		List<MoHDrugOrder> mohDrugOrders = getMoHDrugOrdersByPatient(patient);
+		List<DrugOrder> drugOrders = new ArrayList<DrugOrder>();
+
+		for (MoHDrugOrder mohDrugOrder : mohDrugOrders) {
+			drugOrders.add(mohDrugOrder.getDrugOrder());
+		}
+		return drugOrders;
+	}
+
+	@Override
+	public Provider getFirstCurrentProvider() {
+		Collection<Provider> activPproviders = Context.getProviderService()
+				.getProvidersByPerson(Context.getAuthenticatedUser().getPerson());
 		Provider provider = null;
-		
+
 		for (Provider prov : activPproviders) {
 			provider = prov;
 			break;
 		}
-		
+
 		return provider;
-    }
-    
-    @Override
-    public List<MoHConcept> convertConceptsListToMoHConceptsList(List<Concept> concepts) {
-    	List<MoHConcept> mohConcepts = new ArrayList<MoHConcept>();
-    	
-    	for(Concept c : concepts) {
-    		mohConcepts.add(new MoHConcept(c));
-    	}
-    	
-    	return mohConcepts;
-    }
+	}
+
+	@Override
+	public List<MoHConcept> convertConceptsListToMoHConceptsList(List<Concept> concepts) {
+		List<MoHConcept> mohConcepts = new ArrayList<MoHConcept>();
+
+		for (Concept c : concepts) {
+			mohConcepts.add(new MoHConcept(c));
+		}
+
+		return mohConcepts;
+	}
 }
