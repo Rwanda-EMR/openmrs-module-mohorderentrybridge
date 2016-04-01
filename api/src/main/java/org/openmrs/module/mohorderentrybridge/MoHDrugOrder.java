@@ -2,6 +2,8 @@ package org.openmrs.module.mohorderentrybridge;
 
 import java.util.Date;
 
+import org.apache.commons.lang3.StringUtils;
+import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 
 /**
@@ -20,10 +22,54 @@ public class MoHDrugOrder {
 	private String quantityUnitsName;
 
 	private String routeName;
-	
+
 	private Date startDate;
-	
+
 	private Date stopDate;
+
+	private String frequency;
+
+	private String orderReason;
+
+	private String concept;
+
+	public MoHDrugOrder(DrugOrder dos) {
+		setDrugOrder(dos);
+		setActive(isActive());
+		setDoseUnitsName(getConceptName(dos.getDoseUnits()));
+		setQuantityUnitsName(dos.getQuantityUnits() != null ? dos.getQuantityUnits().getName().getName() : null);
+		setRouteName(getConceptName(dos.getRoute()));
+		setStartDate(dos.getEffectiveStartDate());
+		setStopDate(dos.getEffectiveStopDate());
+		setFrequency(dos.getFrequency() != null ? dos.getFrequency().getName() : null);
+		setConcept(getConceptName(dos.getConcept()));
+		setOrderReason(StringUtils.isBlank(dos.getOrderReasonNonCoded()) ? getConceptName(dos.getOrderReason())
+				: dos.getOrderReasonNonCoded());
+	}
+
+	private String getConceptName(Concept c) {
+		if (c != null && c.getName() != null) {
+			return c.getName().getName();
+		} else {
+			return null;
+		}
+	}
+
+	public String getOrderReason() {
+		return orderReason;
+	}
+
+	public void setOrderReason(String orderReason) {
+		this.orderReason = orderReason;
+	}
+
+	public String getConcept() {
+		return concept;
+	}
+
+	public void setConcept(String concept) {
+		this.concept = concept;
+	}
 
 	public Date getStartDate() {
 		return startDate;
@@ -65,16 +111,6 @@ public class MoHDrugOrder {
 		this.routeName = routeName;
 	}
 
-	public MoHDrugOrder(DrugOrder dos) {
-		setDrugOrder(dos);
-		setActive(isActive());
-		setDoseUnitsName(dos.getDoseUnits() != null ? dos.getDoseUnits().getName().getName() : null);
-		setQuantityUnitsName(dos.getQuantityUnits() != null ? dos.getQuantityUnits().getName().getName() : null);
-		setRouteName(dos.getRoute() != null ? dos.getRoute().getName().getName() : null);
-		setStartDate(dos.getEffectiveStartDate());
-		setStopDate(dos.getEffectiveStopDate());
-	}
-
 	public boolean getIsActive() {
 		return isActive;
 	}
@@ -100,5 +136,13 @@ public class MoHDrugOrder {
 
 	public void setDrugOrder(DrugOrder drugOrder) {
 		this.drugOrder = drugOrder;
+	}
+
+	public String getFrequency() {
+		return frequency;
+	}
+
+	public void setFrequency(String frequency) {
+		this.frequency = frequency;
 	}
 }
