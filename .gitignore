@@ -4,6 +4,7 @@ api/.classpath
 api/.gitignore
 api/.project
 api/.settings/
+api/bin/
 omod/.classpath
 omod/.gitignore
 omod/.project
