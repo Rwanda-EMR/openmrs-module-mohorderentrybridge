@@ -22,6 +22,7 @@ import org.openmrs.Provider;
 import org.openmrs.api.OpenmrsService;
 import org.openmrs.module.mohorderentrybridge.MoHConcept;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
+import org.openmrs.module.mohorderentrybridge.MoHOrderFrequency;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -53,4 +54,6 @@ public interface MoHOrderEntryBridgeService extends OpenmrsService {
 	public Provider getFirstCurrentProvider();
 
 	public List<MoHConcept> convertConceptsListToMoHConceptsList(List<Concept> concepts);
+
+	public List<MoHOrderFrequency> getMoHOrderFrequencies(boolean includeRetired);
 }

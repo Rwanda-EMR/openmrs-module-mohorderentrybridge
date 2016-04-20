@@ -24,12 +24,14 @@ import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.Order.Action;
+import org.openmrs.OrderFrequency;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
 import org.openmrs.api.context.Context;
 import org.openmrs.api.impl.BaseOpenmrsService;
 import org.openmrs.module.mohorderentrybridge.MoHConcept;
 import org.openmrs.module.mohorderentrybridge.MoHDrugOrder;
+import org.openmrs.module.mohorderentrybridge.MoHOrderFrequency;
 import org.openmrs.module.mohorderentrybridge.api.MoHOrderEntryBridgeService;
 import org.openmrs.module.mohorderentrybridge.api.db.MoHOrderEntryBridgeDAO;
 
@@ -109,5 +111,18 @@ public class MoHOrderEntryBridgeServiceImpl extends BaseOpenmrsService implement
 		}
 
 		return mohConcepts;
+	}
+
+	@Override
+	public List<MoHOrderFrequency> getMoHOrderFrequencies(boolean includeRetired) {
+		List<MoHOrderFrequency> mOFreqs = new ArrayList<MoHOrderFrequency>();
+		List<OrderFrequency> oFreqs = Context.getOrderService().getOrderFrequencies(includeRetired);
+		
+		for(OrderFrequency freq : oFreqs) {
+			if(freq != null) {
+				mOFreqs.add(new MoHOrderFrequency(freq));
+			}
+		}
+		return mOFreqs;
 	}
 }
