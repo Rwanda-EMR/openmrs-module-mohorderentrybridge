@@ -23,24 +23,4 @@
             <where>dosing_type = 'FREE_TEXT'</where>
         </update>
     </changeSet>
-    <changeSet id="2016April22-1624" author="k-joseph" dbms="mysql">
-		<preConditions onFail="MARK_RAN">
-			<not>
-				<sqlCheck expectedResult="0">
-				<![CDATA[
-				SELECT count(*) FROM provider WHERE provider_id != person_id;
-				]]>
-				</sqlCheck>
-			</not>
-		</preConditions>
-		<comment>
-			Resolve all current inconsistencies around persons and providers entries, the precondition must be met in earlier OpenMRS versions
-		</comment>
-		<sql>
-			SET foreign_key_checks = 0;
-			UPDATE provider SET provider_id = 111111111, person_id = 111111111 WHERE name = 'Unknown Provider';
-			UPDATE provider pr INNER JOIN person p ON pr.person_id = p.person_id SET pr.provider_id = pr.person_id WHERE pr.provider_id != pr.person_id;
-			SET foreign_key_checks = 1;
-		</sql>
-	</changeSet>
 </databaseChangeLog>
