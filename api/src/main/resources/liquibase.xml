@@ -23,4 +23,11 @@
             <where>dosing_type = 'FREE_TEXT'</where>
         </update>
     </changeSet>
+    <!--changeSet id="206May05-1027" author="k-joseph">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">SELECT COUNT(*) FROM global_property WHERE property = 'mohorderentrybridge.cielMetadata.configured' AND property_value = 'true';</sqlCheck>
+		</preConditions>
+		<comment>Configuring metadata from Concept dictionary to be re-usable in the UI</comment>
+		<customChange class="org.openmrs.module.mohorderentrybridge.liquibase.ConfigureMetadataFromCIEL" />
+	</changeSet-->
 </databaseChangeLog>

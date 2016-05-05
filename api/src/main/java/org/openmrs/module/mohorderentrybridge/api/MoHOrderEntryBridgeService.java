@@ -56,4 +56,5 @@ public interface MoHOrderEntryBridgeService extends OpenmrsService {
 	public List<MoHConcept> convertConceptsListToMoHConceptsList(List<Concept> concepts);
 
 	public List<MoHOrderFrequency> getMoHOrderFrequencies(boolean includeRetired);
+
 }
