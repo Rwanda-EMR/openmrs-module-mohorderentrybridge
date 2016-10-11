@@ -31,8 +31,10 @@
 		<customChange class="org.openmrs.module.mohorderentrybridge.liquibase.ConfigureMetadataFromCIEL" />
 	</changeSet-->
 	<changeSet id="2016June08-1027" author="k-joseph">
+		<validCheckSum>3:65bf87ee12786df18a0e03f9893ff76e</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 			<sqlCheck expectedResult="0">SELECT COUNT(*) FROM person_name WHERE person_id = 111111111;</sqlCheck>
+			<sqlCheck expectedResult="1">SELECT COUNT(*) FROM person WHERE person_id = 111111111;</sqlCheck>
 		</preConditions>
 		<comment>Add Person name for unknown Provider</comment>
 		<insert tableName="person_name">
@@ -46,8 +48,10 @@
 		</insert>
 	</changeSet>
 	<changeSet id="2016June08-2016" author="k-joseph">
+		<validCheckSum>3:754c8a3b5858be760a2c03b2efc0649b</validCheckSum>
 		<preConditions onFail="MARK_RAN">
 			<not><sqlCheck expectedResult="0">SELECT COUNT(*) FROM provider WHERE provider_id=111111111;</sqlCheck></not>
+			<sqlCheck expectedResult="1">SELECT COUNT(*) FROM provider WHERE provider_id = 111111111;</sqlCheck>
 		</preConditions>
 		<comment>Retiring Unknown Provider</comment>
 		<update tableName="provider">
