@@ -49,7 +49,7 @@
 		</update>
 	</changeSet>
 	<changeSet id="2017May14-1008" author="k-joseph">
-		<preConditions>
+		<preConditions onFail="MARK_RAN">
 			<sqlCheck expectedResult="0">select count(*) from person_attribute_type where uuid = '43bb744c-3914-11e7-a919-92ebcb67fe33'</sqlCheck>
 		</preConditions>
         <insert tableName="person_attribute_type">
@@ -65,7 +65,7 @@
         </insert>
     </changeSet>
     <changeSet id="2017May14-1015" author="k-joseph">
-    	<preConditions>
+    	<preConditions onFail="MARK_RAN">
 			<sqlCheck expectedResult="0">select count(*) from person_attribute_type where uuid = '43bb76cc-3914-11e7-a919-92ebcb67fe33'</sqlCheck>
 		</preConditions>
         <insert tableName="person_attribute_type">
@@ -81,7 +81,7 @@
         </insert>
     </changeSet>
     <changeSet id="2017May14-1020" author="k-joseph">
-    	<preConditions>
+    	<preConditions onFail="MARK_RAN">
 			<sqlCheck expectedResult="0">select count(*) from person_attribute_type where uuid = '43bb77c6-3914-11e7-a919-92ebcb67fe33'</sqlCheck>
 		</preConditions>
         <insert tableName="person_attribute_type">
