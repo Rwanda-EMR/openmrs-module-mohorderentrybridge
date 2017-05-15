@@ -48,4 +48,52 @@
 			<where>provider_id=(SELECT person_id FROM person WHERE uuid = '8ea1809e-9b78-11e6-9f33-a24fc0d9649c') AND retired=0</where>
 		</update>
 	</changeSet>
+	<changeSet id="2017May14-1008" author="k-joseph">
+		<preConditions>
+			<sqlCheck expectedResult="0">select count(*) from person_attribute_type where uuid = '43bb744c-3914-11e7-a919-92ebcb67fe33'</sqlCheck>
+		</preConditions>
+        <insert tableName="person_attribute_type">
+            <column name="name" value="Phone Number"/>
+            <column name="description" value="Person's personal phone number"/>
+            <column name="format" value="java.lang.String"/>
+            <column name="foreign_key" valueNumeric="0"/>
+            <column name="searchable" valueBoolean="false"/>
+            <column name="creator" valueNumeric="1"/>
+            <column name="date_created" valueDate="2017-05-05"/>
+            <column name="retired" valueBoolean="false"/>
+            <column name="uuid" value="43bb744c-3914-11e7-a919-92ebcb67fe33"/>
+        </insert>
+    </changeSet>
+    <changeSet id="2017May14-1015" author="k-joseph">
+    	<preConditions>
+			<sqlCheck expectedResult="0">select count(*) from person_attribute_type where uuid = '43bb76cc-3914-11e7-a919-92ebcb67fe33'</sqlCheck>
+		</preConditions>
+        <insert tableName="person_attribute_type">
+            <column name="name" value="Peer Educator's Name"/>
+            <column name="description" value="Patient's peer educator's first and last name"/>
+            <column name="format" value="java.lang.String"/>
+            <column name="foreign_key" valueNumeric="0"/>
+            <column name="searchable" valueBoolean="false"/>
+            <column name="creator" valueNumeric="1"/>
+            <column name="date_created" valueDate="2017-05-05"/>
+            <column name="retired" valueBoolean="false"/>
+            <column name="uuid" value="43bb76cc-3914-11e7-a919-92ebcb67fe33"/>
+        </insert>
+    </changeSet>
+    <changeSet id="2017May14-1020" author="k-joseph">
+    	<preConditions>
+			<sqlCheck expectedResult="0">select count(*) from person_attribute_type where uuid = '43bb77c6-3914-11e7-a919-92ebcb67fe33'</sqlCheck>
+		</preConditions>
+        <insert tableName="person_attribute_type">
+            <column name="name" value="Peer Educator's Phone Number"/>
+            <column name="description" value="Patient's peer educator's prersonal phone number"/>
+            <column name="format" value="java.lang.String"/>
+            <column name="foreign_key" valueNumeric="0"/>
+            <column name="searchable" valueBoolean="false"/>
+            <column name="creator" valueNumeric="1"/>
+            <column name="date_created" valueDate="2017-05-05"/>
+            <column name="retired" valueBoolean="false"/>
+            <column name="uuid" value="43bb77c6-3914-11e7-a919-92ebcb67fe33"/>
+        </insert>
+    </changeSet>
 </databaseChangeLog>
