@@ -23,7 +23,6 @@ import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
-import org.openmrs.Order.Action;
 import org.openmrs.OrderFrequency;
 import org.openmrs.Patient;
 import org.openmrs.Provider;
@@ -67,8 +66,7 @@ public class MoHOrderEntryBridgeServiceImpl extends BaseOpenmrsService implement
 		List<Patient> patients = new Vector<Patient>();
 		patients.add(patient);
 		for (Order order : orderList) {
-			if ("org.openmrs.DrugOrder".equals(order.getOrderType().getJavaClassName()) && order instanceof DrugOrder
-					&& !order.getAction().equals(Action.DISCONTINUE)) {
+			if ("org.openmrs.DrugOrder".equals(order.getOrderType().getJavaClassName()) && order instanceof DrugOrder) {
 				MoHDrugOrder mohDOrder = new MoHDrugOrder((DrugOrder) order);
 
 				drugOrders.add(mohDOrder);
